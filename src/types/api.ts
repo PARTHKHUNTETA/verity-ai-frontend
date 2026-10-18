@@ -464,3 +464,133 @@ export type Metrics = {
   denials: Array<{ decision: string; rule: string; count: number }>;
   daily: Array<{ day: string; runs: number; failed: number; costUsd: number }>;
 };
+
+// --- Offline evaluation (Phase 11) ------------------------------------------------------
+
+export type EvalCaseCategory = "normal" | "edge" | "no_answer" | "red_team";
+
+export type EvalDataset = {
+  id: string;
+  name: string;
+  description: string | null;
+  collectionId: string | null;
+  createdBy: string | null;
+  createdAt: string;
+  caseCount?: number;
+};
+
+export type EvalCase = {
+  id: string;
+  position: number;
+  question: string;
+  instructions: string | null;
+  referenceAnswer: string | null;
+  category: EvalCaseCategory;
+  requiredPoints: string[];
+  expectedSources: string[];
+  forbiddenSources: string[];
+  forbiddenContent: string[];
+  tags: string[];
+};
+
+export type EvalCaseInput = Omit<EvalCase, "id" | "position">;
+
+export type EvalConfig = {
+  model: string;
+  pipelineVersion: string;
+  promptVersions: Record<string, string>;
+  policyVersion: number | null;
+  topK: number;
+  discovery: boolean;
+  revise: boolean;
+  collectionIds: string[];
+  limit: number | null;
+};
+
+export type EvalSummary = {
+  cases: number;
+  completed: number;
+  passed: number;
+  passRate: number;
+  means: Record<string, number | null>;
+  latencyMs: { p50: number | null; p95: number | null };
+  totalCostUsd: number | null;
+  byCategory: Record<string, { cases: number; passed: number }>;
+};
+
+export type EvalRunStatus = "queued" | "running" | "completed" | "failed" | "cancelled";
+
+export type EvalRun = {
+  id: string;
+  datasetId: string;
+  name: string;
+  config: EvalConfig;
+  status: EvalRunStatus;
+  summary: EvalSummary | null;
+  error: string | null;
+  startedBy: string | null;
+  createdAt: string;
+  startedAt: string | null;
+  completedAt: string | null;
+};
+
+export type EvalCaseScores = {
+  completed: boolean;
+  claimSupport: number | null;
+  citationAccuracy: number | null;
+  citationValidity: number | null;
+  sourceReliability: number | null;
+  coverage: number | null;
+  taskCompletion: number | null;
+  policyCompliant: boolean | null;
+  sourceRecall: number | null;
+  requiredPoints: number | null;
+  forbiddenSourcesCited: string[];
+  forbiddenContentFound: string[];
+  latencyMs: number | null;
+  costUsd: number | null;
+};
+
+export type EvalResult = {
+  id: string;
+  caseId: string;
+  position: number;
+  question: string;
+  category: EvalCaseCategory;
+  researchRunId: string | null;
+  scores: EvalCaseScores;
+  passed: boolean;
+  failures: string[];
+  details: Record<string, unknown>;
+};
+
+export type EvalRunDetail = EvalRun & {
+  dataset: EvalDataset | null;
+  progress: { done: number; total: number };
+  currentResearchRunId: string | null;
+  results: EvalResult[];
+};
+
+export type MetricComparison = {
+  key: string;
+  label: string;
+  a: number | null;
+  b: number | null;
+  delta: number | null;
+  better: "a" | "b" | "same" | null;
+};
+
+export type EvalComparison = {
+  a: EvalRun;
+  b: EvalRun;
+  metrics: MetricComparison[];
+  cases: Array<{
+    caseId: string;
+    position: number;
+    question: string;
+    category: EvalCaseCategory;
+    a: boolean;
+    b: boolean;
+    change: "fixed" | "regressed" | "same";
+  }>;
+};

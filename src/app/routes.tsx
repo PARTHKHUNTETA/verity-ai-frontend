@@ -3,6 +3,9 @@ import { AppShell } from "@/components/layout/AppShell";
 import { ProtectedRoute, PublicOnlyRoute } from "@/features/auth/components/RouteGuards";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/RegisterPage";
+import { ComparePage } from "@/features/evaluations/ComparePage";
+import { DatasetPage } from "@/features/evaluations/DatasetPage";
+import { EvalRunPage } from "@/features/evaluations/EvalRunPage";
 import { EvaluationsPage } from "@/features/evaluations/EvaluationsPage";
 import { OrganizationPage } from "@/features/organization/OrganizationPage";
 import { ReportsPage } from "@/features/reports/ReportsPage";
@@ -43,6 +46,9 @@ export const routes: RouteObject[] = [
           { path: "/sources/:sourceId", element: <SourcePage /> },
           { path: "/reports", element: <ReportsPage /> },
           { path: "/evaluations", element: <EvaluationsPage /> },
+          { path: "/evaluations/datasets/:datasetId", element: <DatasetPage /> },
+          { path: "/evaluations/runs/:evalRunId", element: <EvalRunPage /> },
+          { path: "/evaluations/compare", element: <ComparePage /> },
           { path: "/organization", element: <OrganizationPage /> },
           { path: "/approvals", element: <ApprovalsPage /> },
           { path: "/observability", element: <ObservabilityPage /> },
