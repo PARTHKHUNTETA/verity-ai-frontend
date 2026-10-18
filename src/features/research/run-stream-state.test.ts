@@ -24,6 +24,7 @@ function detail(content: string, reportStatus: "draft" | "final" = "draft"): Run
     },
     task: { id: "t1", question: "Q?", instructions: null, createdBy: "u1", createdAt: "" },
     report: { id: "rep1", version: 1, status: reportStatus, contentMd: content },
+    citations: [],
   };
 }
 

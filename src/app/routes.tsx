@@ -8,6 +8,8 @@ import { OrganizationPage } from "@/features/organization/OrganizationPage";
 import { ReportsPage } from "@/features/reports/ReportsPage";
 import { ResearchPage } from "@/features/research/ResearchPage";
 import { RunPage } from "@/features/research/RunPage";
+import { CollectionPage } from "@/features/sources/CollectionPage";
+import { SourcePage } from "@/features/sources/SourcePage";
 import { SourcesPage } from "@/features/sources/SourcesPage";
 import { NotFoundPage } from "./NotFoundPage";
 
@@ -34,6 +36,8 @@ export const routes: RouteObject[] = [
           { path: "/research", element: <ResearchPage /> },
           { path: "/research/runs/:runId", element: <RunPage /> },
           { path: "/sources", element: <SourcesPage /> },
+          { path: "/sources/collections/:collectionId", element: <CollectionPage /> },
+          { path: "/sources/:sourceId", element: <SourcePage /> },
           { path: "/reports", element: <ReportsPage /> },
           { path: "/evaluations", element: <EvaluationsPage /> },
           { path: "/organization", element: <OrganizationPage /> },

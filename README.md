@@ -34,13 +34,15 @@ src/
 ├── features/
 │   ├── auth/               # AuthProvider, useAuth/useMe, route guards, login & register pages
 │   ├── research/           # new research form, history, live run page (SSE)
-│   ├── sources/ reports/ evaluations/   # placeholders (filled in from Phase 5 on)
+│   ├── sources/            # collections, upload, document & chunk viewer, search tester
+│   ├── reports/ evaluations/   # placeholders (filled in later)
 │   └── organization/       # current organization + member list
 ├── services/
 │   ├── api-client.ts       # fetch wrapper: access token, 401 → refresh → retry, ApiError
 │   ├── auth-api.ts         # register, login, logout, me
 │   ├── organization-api.ts
 │   ├── research-api.ts     # tasks, runs, cancel, streamRun (typed SSE messages)
+│   ├── sources-api.ts      # collections, uploads (FormData), sources, chunks, search
 │   └── sse.ts              # minimal SSE parser for fetch() streams
 ├── types/api.ts            # response types mirroring the backend
 └── test/                   # test setup + renderWithAuth helper
@@ -61,6 +63,12 @@ src/
 The run page (`features/research/RunPage.tsx`) follows a run over SSE with `useRunStream`. The pure
 reducer in `run-stream-state.ts` applies `snapshot` / `status` / `delta` messages. Deltas carry an
 `offset`, so duplicates are ignored and a gap triggers a reconnect, which starts with a fresh snapshot.
+
+## Citations
+
+Answers contain markers like `[2]`. `features/research/citations.ts` turns them into links
+(`#cite-2`) that `AnswerView` renders as `CitationChip`s. Clicking one shows the exact passage,
+with a link to `/sources/:id?chunk=:chunkId`, which scrolls to and highlights that chunk.
 
 ## Conventions
 

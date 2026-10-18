@@ -107,5 +107,80 @@ export type Report = {
   contentMd: string;
 };
 
+/** A passage the model could cite as [number]. */
+export type Citation = {
+  number: number;
+  evidenceId: string;
+  chunkId: string | null;
+  sourceId: string;
+  sourceTitle: string;
+  quote: string;
+  pageStart: number | null;
+  pageEnd: number | null;
+};
+
 /** GET /research/runs/:id, and the SSE "snapshot" event. */
-export type RunDetail = { run: Run; task: Task; report: Report | null };
+export type RunDetail = { run: Run; task: Task; report: Report | null; citations: Citation[] };
+
+// --- Knowledge base (Phase 5) ---------------------------------------------------------
+
+export type CollectionVisibility = "private" | "organization";
+export type SourceStatus = "pending" | "processing" | "ready" | "failed";
+
+export type Collection = {
+  id: string;
+  name: string;
+  description: string | null;
+  visibility: CollectionVisibility;
+  createdBy: string | null;
+  createdAt: string;
+  sourceCount: number;
+  readyCount: number;
+};
+
+export type Source = {
+  id: string;
+  type: "upload" | "web" | "paper";
+  title: string;
+  fileName: string | null;
+  mimeType: string | null;
+  sizeBytes: number | null;
+  authors: string[] | null;
+  url: string | null;
+  status: SourceStatus;
+  error: string | null;
+  pageCount: number | null;
+  tokenCount: number | null;
+  createdAt: string;
+};
+
+export type CollectionDetail = Omit<Collection, "sourceCount" | "readyCount"> & {
+  canEdit: boolean;
+  sources: Array<Source & { addedAt: string }>;
+};
+
+export type SourceDetail = Source & {
+  collections: Array<{ id: string; name: string }>;
+  chunkCount: number;
+};
+
+export type Chunk = {
+  id: string;
+  chunkIndex: number;
+  content: string;
+  tokenCount: number;
+  pageStart: number | null;
+  pageEnd: number | null;
+};
+
+export type SearchHit = {
+  chunkId: string;
+  sourceId: string;
+  sourceTitle: string;
+  content: string;
+  pageStart: number | null;
+  pageEnd: number | null;
+  score: number;
+  vectorRank: number | null;
+  keywordRank: number | null;
+};

@@ -9,6 +9,7 @@ import { errorMessage } from "@/services/api-client";
 import { researchApi } from "@/services/research-api";
 import { AnswerView } from "./components/AnswerView";
 import { RunStatusBadge } from "./components/RunStatusBadge";
+import { SourcesList } from "./components/SourcesList";
 import { formatCost, formatDuration, isActive } from "./format";
 import { useRunStream } from "./hooks/useRunStream";
 
@@ -76,17 +77,25 @@ function RunView({ runId }: { runId: string }) {
 
       <Card className="p-5 sm:p-6">
         {content ? (
-          <AnswerView content={content} streaming={run.status === "running"} />
+          <AnswerView
+            content={content}
+            streaming={run.status === "running"}
+            citations={detail.citations}
+          />
         ) : (
           <p className="text-ink-muted text-sm">
             {run.status === "queued"
               ? "Waiting for a worker to pick up this run…"
-              : active
-                ? "Thinking…"
-                : "No answer was produced."}
+              : run.stage === "retrieving"
+                ? "Searching your sources…"
+                : active
+                  ? "Writing the answer…"
+                  : "No answer was produced."}
           </p>
         )}
       </Card>
+
+      <SourcesList citations={detail.citations} />
 
       <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
         <Meta label="Model" value={run.model} />
