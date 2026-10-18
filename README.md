@@ -35,8 +35,11 @@ src/
 │   ├── auth/               # AuthProvider, useAuth/useMe, route guards, login & register pages
 │   ├── research/           # research form (+ discovery toggle), history, live run page (SSE),
 │   │                       # stage timeline, plan, analysis (code runs), evidence,
-│   │                       # citations with stance, "Sources found" panel
+│   │                       # citations with stance, "Sources found" panel,
+│   │                       # approval banner + policy decisions
 │   ├── sources/            # collections, upload, document & chunk viewer, search tester
+│   ├── approvals/          # approvals inbox (owners/admins), sidebar badge
+│   ├── settings/           # agent policy editor (owners/admins)
 │   ├── reports/ evaluations/   # placeholders (filled in later)
 │   └── organization/       # current organization + member list
 ├── services/
@@ -45,6 +48,7 @@ src/
 │   ├── organization-api.ts
 │   ├── research-api.ts     # tasks, runs, cancel, streamRun (typed SSE messages)
 │   ├── sources-api.ts      # collections, uploads (FormData), sources, chunks, search
+│   ├── governance-api.ts   # approvals inbox + decisions, agent policy (read/save)
 │   └── sse.ts              # minimal SSE parser for fetch() streams
 ├── types/api.ts            # response types mirroring the backend
 └── test/                   # test setup + renderWithAuth helper

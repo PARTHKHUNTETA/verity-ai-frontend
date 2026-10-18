@@ -1,8 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { cn } from "@/components/ui/cn";
 import { FullPageSpinner } from "@/components/ui/Spinner";
 import { useAuth, useMe } from "@/features/auth/auth-context";
 import { errorMessage } from "@/services/api-client";
@@ -15,6 +17,7 @@ import { PlanCard } from "./components/PlanCard";
 import { PolicyDecisionsCard } from "./components/PolicyDecisionsCard";
 import { StageTimeline } from "./components/StageTimeline";
 import { SourcesList } from "./components/SourcesList";
+import { TraceView } from "./components/TraceView";
 import { formatCost, formatDuration, isActive } from "./format";
 import { useRunStream } from "./hooks/useRunStream";
 
@@ -28,6 +31,7 @@ function RunView({ runId }: { runId: string }) {
   const { can } = useAuth();
   const navigate = useNavigate();
   const { detail, content, error } = useRunStream(runId);
+  const [tab, setTab] = useState<"report" | "trace">("report");
 
   const cancel = useMutation({ mutationFn: () => researchApi.cancelRun(runId) });
   const rerun = useMutation({
@@ -99,39 +103,66 @@ function RunView({ runId }: { runId: string }) {
         </Alert>
       )}
 
-      <Card className="p-5 sm:p-6">
-        {content ? (
-          <AnswerView
-            content={content}
-            streaming={run.status === "running"}
-            citations={detail.citations}
-          />
-        ) : (
-          <p className="text-ink-muted text-sm">
-            {run.status === "queued"
-              ? "Waiting for a worker to pick up this run…"
-              : active
-                ? (STAGE_LABELS[run.stage ?? "synthesizing"] ?? "Working…")
-                : "No answer was produced."}
-          </p>
-        )}
-      </Card>
+      <div role="tablist" aria-label="Run view" className="border-line flex gap-1 border-b">
+        {(["report", "trace"] as const).map((t) => (
+          <button
+            key={t}
+            type="button"
+            role="tab"
+            aria-selected={tab === t}
+            onClick={() => setTab(t)}
+            className={cn(
+              "-mb-px border-b-2 px-3 py-2 text-sm",
+              tab === t
+                ? "border-brand-600 text-ink font-medium"
+                : "text-ink-muted hover:text-ink border-transparent",
+            )}
+          >
+            {t === "trace" ? "Trace & cost" : "Report"}
+          </button>
+        ))}
+      </div>
 
-      <PlanCard subQuestions={detail.subQuestions} />
-      <AnalysisCard toolCalls={detail.toolCalls} />
-      <PolicyDecisionsCard decisions={detail.decisions} />
-      <SourcesList citations={detail.citations} />
-      <DiscoveredSources sources={detail.discovered} />
+      {tab === "trace" ? (
+        // Refetch the trace as the run moves on (new stage, new steps, finished).
+        <TraceView runId={runId} refreshKey={`${run.status}-${run.stage}-${detail.steps.length}`} />
+      ) : (
+        <>
+          <Card className="p-5 sm:p-6">
+            {content ? (
+              <AnswerView
+                content={content}
+                streaming={run.status === "running"}
+                citations={detail.citations}
+              />
+            ) : (
+              <p className="text-ink-muted text-sm">
+                {run.status === "queued"
+                  ? "Waiting for a worker to pick up this run…"
+                  : active
+                    ? (STAGE_LABELS[run.stage ?? "synthesizing"] ?? "Working…")
+                    : "No answer was produced."}
+              </p>
+            )}
+          </Card>
 
-      <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
-        <Meta label="Model" value={run.model} />
-        <Meta
-          label="Tokens (in / out)"
-          value={run.status === "completed" ? `${run.tokensInput} / ${run.tokensOutput}` : "—"}
-        />
-        <Meta label="Cost" value={run.status === "completed" ? formatCost(run.costUsd) : "—"} />
-        <Meta label="Duration" value={formatDuration(run.durationMs)} />
-      </dl>
+          <PlanCard subQuestions={detail.subQuestions} />
+          <AnalysisCard toolCalls={detail.toolCalls} />
+          <PolicyDecisionsCard decisions={detail.decisions} />
+          <SourcesList citations={detail.citations} />
+          <DiscoveredSources sources={detail.discovered} />
+
+          <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
+            <Meta label="Model" value={run.model} />
+            <Meta
+              label="Tokens (in / out)"
+              value={run.status === "completed" ? `${run.tokensInput} / ${run.tokensOutput}` : "—"}
+            />
+            <Meta label="Cost" value={run.status === "completed" ? formatCost(run.costUsd) : "—"} />
+            <Meta label="Duration" value={formatDuration(run.durationMs)} />
+          </dl>
+        </>
+      )}
     </div>
   );
 }

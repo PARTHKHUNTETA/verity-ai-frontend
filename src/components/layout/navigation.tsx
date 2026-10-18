@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import {
   ChartIcon,
   CheckIcon,
+  PulseIcon,
   ReportIcon,
   SearchIcon,
   ShieldIcon,
@@ -26,6 +27,7 @@ export const mainNav: NavItem[] = [
   { to: "/sources", label: "Sources", icon: <SourcesIcon /> },
   { to: "/reports", label: "Reports", icon: <ReportIcon /> },
   { to: "/evaluations", label: "Evaluations", icon: <ChartIcon /> },
+  { to: "/observability", label: "Observability", icon: <PulseIcon /> },
   {
     to: "/approvals",
     label: "Approvals",

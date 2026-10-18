@@ -323,3 +323,80 @@ export type SearchHit = {
   vectorRank: number | null;
   keywordRank: number | null;
 };
+
+// --- Observability (Phase 9) ----------------------------------------------------------
+
+export type TraceSpan = {
+  spanId: string;
+  traceId: string;
+  parentSpanId: string | null;
+  name: string;
+  kind: "internal" | "client";
+  status: "ok" | "error";
+  attributes: Record<string, unknown>;
+  errorMessage: string | null;
+  startTime: string;
+  endTime: string | null;
+  durationMs: number | null;
+};
+
+export type TraceSummary = {
+  totalMs: number;
+  llm: {
+    calls: number;
+    ms: number;
+    costUsd: number | null;
+    tokensInput: number;
+    tokensOutput: number;
+  };
+  tools: { calls: number; ms: number; denied: number; failed: number; cached: number };
+  stages: Array<{
+    stage: string;
+    ms: number;
+    llmMs: number;
+    toolMs: number;
+    costUsd: number | null;
+  }>;
+  slowest: Array<{ spanId: string; name: string; ms: number; detail: string | null }>;
+  errors: Array<{ spanId: string; name: string; message: string | null }>;
+};
+
+export type RunTrace = { traceId: string; spans: TraceSpan[]; summary: TraceSummary };
+
+export type Metrics = {
+  window: { days: number; since: string };
+  runs: {
+    total: number;
+    completed: number;
+    failed: number;
+    cancelled: number;
+    awaitingApproval: number;
+    p50Ms: number | null;
+    p95Ms: number | null;
+    avgCostUsd: number | null;
+    totalCostUsd: number;
+    totalTokens: number;
+  };
+  failures: Array<{ code: string; count: number }>;
+  llm: Array<{
+    name: string;
+    calls: number;
+    p50Ms: number | null;
+    p95Ms: number | null;
+    errorRate: number;
+    costUsd: number;
+  }>;
+  stages: Array<{ name: string; calls: number; p50Ms: number | null; p95Ms: number | null }>;
+  tools: Array<{
+    tool: string;
+    calls: number;
+    succeeded: number;
+    failed: number;
+    denied: number;
+    awaiting: number;
+    avgMs: number | null;
+    errorRate: number;
+  }>;
+  denials: Array<{ decision: string; rule: string; count: number }>;
+  daily: Array<{ day: string; runs: number; failed: number; costUsd: number }>;
+};

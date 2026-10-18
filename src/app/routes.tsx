@@ -12,6 +12,7 @@ import { CollectionPage } from "@/features/sources/CollectionPage";
 import { SourcePage } from "@/features/sources/SourcePage";
 import { SourcesPage } from "@/features/sources/SourcesPage";
 import { ApprovalsPage } from "@/features/approvals/ApprovalsPage";
+import { ObservabilityPage } from "@/features/observability/ObservabilityPage";
 import { PolicyPage } from "@/features/settings/PolicyPage";
 import { NotFoundPage } from "./NotFoundPage";
 
@@ -44,6 +45,7 @@ export const routes: RouteObject[] = [
           { path: "/evaluations", element: <EvaluationsPage /> },
           { path: "/organization", element: <OrganizationPage /> },
           { path: "/approvals", element: <ApprovalsPage /> },
+          { path: "/observability", element: <ObservabilityPage /> },
           { path: "/settings/policy", element: <PolicyPage /> },
         ],
       },

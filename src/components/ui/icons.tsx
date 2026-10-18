@@ -77,3 +77,9 @@ export const ShieldIcon = () => (
     <path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6z" />
   </Icon>
 );
+
+export const PulseIcon = () => (
+  <Icon>
+    <path d="M3 12h4l3-7 4 14 3-7h4" />
+  </Icon>
+);
