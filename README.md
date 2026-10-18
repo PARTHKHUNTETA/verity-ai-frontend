@@ -33,7 +33,8 @@ src/
 │   └── ui/                 # Button, Input, Card, Alert, Spinner, EmptyState, PageHeader, icons
 ├── features/
 │   ├── auth/               # AuthProvider, useAuth/useMe, route guards, login & register pages
-│   ├── research/           # new research form, history, live run page (SSE)
+│   ├── research/           # research form (+ discovery toggle), history, live run page (SSE),
+│   │                       # citations, "Sources found" panel
 │   ├── sources/            # collections, upload, document & chunk viewer, search tester
 │   ├── reports/ evaluations/   # placeholders (filled in later)
 │   └── organization/       # current organization + member list

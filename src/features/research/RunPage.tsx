@@ -9,6 +9,7 @@ import { errorMessage } from "@/services/api-client";
 import { researchApi } from "@/services/research-api";
 import { AnswerView } from "./components/AnswerView";
 import { RunStatusBadge } from "./components/RunStatusBadge";
+import { DiscoveredSources } from "./components/DiscoveredSources";
 import { SourcesList } from "./components/SourcesList";
 import { formatCost, formatDuration, isActive } from "./format";
 import { useRunStream } from "./hooks/useRunStream";
@@ -49,7 +50,7 @@ function RunView({ runId }: { runId: string }) {
           <h1 className="text-ink text-xl font-semibold tracking-tight">{task.question}</h1>
           <div className="text-ink-muted mt-2 flex flex-wrap items-center gap-3 text-sm">
             <RunStatusBadge status={run.status} />
-            {run.stage && active && <span className="capitalize">{run.stage}…</span>}
+            {run.stage && active && <span>{STAGE_LABELS[run.stage]}</span>}
           </div>
         </div>
         <div className="flex gap-2">
@@ -86,16 +87,15 @@ function RunView({ runId }: { runId: string }) {
           <p className="text-ink-muted text-sm">
             {run.status === "queued"
               ? "Waiting for a worker to pick up this run…"
-              : run.stage === "retrieving"
-                ? "Searching your sources…"
-                : active
-                  ? "Writing the answer…"
-                  : "No answer was produced."}
+              : active
+                ? (STAGE_LABELS[run.stage ?? "synthesizing"] ?? "Working…")
+                : "No answer was produced."}
           </p>
         )}
       </Card>
 
       <SourcesList citations={detail.citations} />
+      <DiscoveredSources sources={detail.discovered} />
 
       <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
         <Meta label="Model" value={run.model} />
@@ -109,6 +109,17 @@ function RunView({ runId }: { runId: string }) {
     </div>
   );
 }
+
+const STAGE_LABELS: Record<string, string> = {
+  planning: "Planning the research…",
+  discovering: "Searching the web and academic papers…",
+  acquiring: "Reading the most promising sources…",
+  retrieving: "Finding the relevant passages…",
+  extracting: "Extracting evidence…",
+  analyzing: "Analyzing…",
+  synthesizing: "Writing the answer…",
+  evaluating: "Checking the answer…",
+};
 
 function Meta({ label, value }: { label: string; value: string }) {
   return (

@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 import { Alert } from "@/components/ui/Alert";
@@ -18,6 +18,12 @@ export function NewResearchForm() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [question, setQuestion] = useState("");
+  const [discover, setDiscover] = useState(true);
+  const capabilities = useQuery({
+    queryKey: ["research", "capabilities"],
+    queryFn: researchApi.capabilities,
+    staleTime: Infinity,
+  });
 
   const create = useMutation({
     mutationFn: researchApi.createTask,
@@ -40,7 +46,7 @@ export function NewResearchForm() {
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
-    create.mutate({ question: question.trim() });
+    create.mutate({ question: question.trim(), discover });
   }
 
   return (
@@ -62,6 +68,7 @@ export function NewResearchForm() {
           aria-invalid={fieldError ? true : undefined}
         />
         {fieldError && <p className="text-xs text-red-600">{fieldError}</p>}
+        <DiscoveryToggle checked={discover} onChange={setDiscover} providers={capabilities.data} />
         {create.isError && !fieldError && <Alert>{errorMessage(create.error)}</Alert>}
 
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -84,5 +91,47 @@ export function NewResearchForm() {
         </div>
       </form>
     </Card>
+  );
+}
+
+const PROVIDER_LABELS: Record<string, string> = {
+  tavily: "the web",
+  arxiv: "arXiv",
+  semantic_scholar: "Semantic Scholar",
+};
+
+function DiscoveryToggle({
+  checked,
+  onChange,
+  providers,
+}: {
+  checked: boolean;
+  onChange: (value: boolean) => void;
+  providers?: { webSearch: string | null; academicSearch: string[] };
+}) {
+  const names = [
+    ...(providers?.webSearch ? [providers.webSearch] : []),
+    ...(providers?.academicSearch ?? []),
+  ].map((p) => PROVIDER_LABELS[p] ?? p);
+  const disabled = providers !== undefined && names.length === 0;
+
+  return (
+    <label className="text-ink-muted flex items-start gap-2 text-sm has-disabled:opacity-60">
+      <input
+        type="checkbox"
+        checked={checked && !disabled}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.checked)}
+        className="accent-brand-600 mt-0.5"
+      />
+      <span>
+        Find new sources on {names.length ? names.join(", ") : "the web"}
+        <span className="text-ink-subtle block text-xs">
+          {disabled
+            ? "No search providers are configured on the server."
+            : "Up to 5 documents are fetched, read and indexed, then cited alongside your own collections."}
+        </span>
+      </span>
+    </label>
   );
 }

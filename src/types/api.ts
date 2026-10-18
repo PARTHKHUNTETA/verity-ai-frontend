@@ -119,8 +119,32 @@ export type Citation = {
   pageEnd: number | null;
 };
 
+export type RunSourceStatus = "candidate" | "acquired" | "used" | "rejected" | "blocked";
+
+/** A source a run found through web or academic search, and what happened to it. */
+export type DiscoveredSource = {
+  id: string;
+  url: string;
+  title: string | null;
+  provider: string;
+  discoveredVia: "web_search" | "academic_search";
+  rank: number;
+  status: RunSourceStatus;
+  reason: string | null;
+  sourceId: string | null;
+};
+
 /** GET /research/runs/:id, and the SSE "snapshot" event. */
-export type RunDetail = { run: Run; task: Task; report: Report | null; citations: Citation[] };
+export type RunDetail = {
+  run: Run;
+  task: Task;
+  report: Report | null;
+  citations: Citation[];
+  discovered: DiscoveredSource[];
+};
+
+/** GET /research/capabilities */
+export type ResearchCapabilities = { webSearch: string | null; academicSearch: string[] };
 
 // --- Knowledge base (Phase 5) ---------------------------------------------------------
 
@@ -147,6 +171,8 @@ export type Source = {
   sizeBytes: number | null;
   authors: string[] | null;
   url: string | null;
+  domain: string | null;
+  publishedAt: string | null;
   status: SourceStatus;
   error: string | null;
   pageCount: number | null;

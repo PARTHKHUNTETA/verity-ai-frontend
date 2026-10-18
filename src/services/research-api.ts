@@ -1,4 +1,11 @@
-import type { Run, RunDetail, RunStage, RunStatus, TaskSummary } from "@/types/api";
+import type {
+  ResearchCapabilities,
+  Run,
+  RunDetail,
+  RunStage,
+  RunStatus,
+  TaskSummary,
+} from "@/types/api";
 import { apiRequest, openStream } from "./api-client";
 import { readSse } from "./sse";
 
@@ -10,7 +17,9 @@ export type RunStreamMessage =
   | { type: "done" };
 
 export const researchApi = {
-  createTask: (input: { question: string; instructions?: string }) =>
+  capabilities: () => apiRequest<ResearchCapabilities>("/research/capabilities"),
+
+  createTask: (input: { question: string; instructions?: string; discover?: boolean }) =>
     apiRequest<{ task: TaskSummary; run: Run }>("/research/tasks", { method: "POST", body: input }),
 
   listTasks: async () => (await apiRequest<{ tasks: TaskSummary[] }>("/research/tasks")).tasks,
