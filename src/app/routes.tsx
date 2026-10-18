@@ -7,6 +7,7 @@ import { EvaluationsPage } from "@/features/evaluations/EvaluationsPage";
 import { OrganizationPage } from "@/features/organization/OrganizationPage";
 import { ReportsPage } from "@/features/reports/ReportsPage";
 import { ResearchPage } from "@/features/research/ResearchPage";
+import { RunPage } from "@/features/research/RunPage";
 import { SourcesPage } from "@/features/sources/SourcesPage";
 import { NotFoundPage } from "./NotFoundPage";
 
@@ -31,6 +32,7 @@ export const routes: RouteObject[] = [
         children: [
           { index: true, element: <Navigate to="/research" replace /> },
           { path: "/research", element: <ResearchPage /> },
+          { path: "/research/runs/:runId", element: <RunPage /> },
           { path: "/sources", element: <SourcesPage /> },
           { path: "/reports", element: <ReportsPage /> },
           { path: "/evaluations", element: <EvaluationsPage /> },

@@ -125,8 +125,29 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   return (await res.json()) as T;
 }
 
-function send(path: string, { method = "GET", body, signal }: RequestOptions, auth: boolean) {
-  const headers: Record<string, string> = { Accept: "application/json" };
+/**
+ * Opens a streaming response (e.g. Server-Sent Events) with the same auth handling as
+ * apiRequest. The browser's EventSource can't send an Authorization header, so streams use
+ * fetch and read the body incrementally instead.
+ */
+export async function openStream(path: string, signal?: AbortSignal): Promise<Response> {
+  const options: RequestOptions = { signal };
+  let res = await send(path, options, true, "text/event-stream");
+  if (res.status === 401) {
+    if (await refreshAccessToken()) res = await send(path, options, true, "text/event-stream");
+    else onSessionExpired?.();
+  }
+  if (!res.ok || !res.body) throw await toApiError(res);
+  return res;
+}
+
+function send(
+  path: string,
+  { method = "GET", body, signal }: RequestOptions,
+  auth: boolean,
+  accept = "application/json",
+) {
+  const headers: Record<string, string> = { Accept: accept };
   if (body !== undefined) headers["Content-Type"] = "application/json";
   if (auth && accessToken) headers.Authorization = `Bearer ${accessToken}`;
 

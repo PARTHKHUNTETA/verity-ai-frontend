@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* Design tokens: use these (e.g. bg-brand-600, text-ink-muted) instead of raw colors. */
 @theme {

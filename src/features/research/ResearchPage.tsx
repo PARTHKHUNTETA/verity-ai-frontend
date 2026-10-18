@@ -1,20 +1,18 @@
-import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { SearchIcon } from "@/components/ui/icons";
+import { NewResearchForm } from "./components/NewResearchForm";
+import { TaskHistory } from "./components/TaskHistory";
 
 export function ResearchPage() {
   return (
     <>
       <PageHeader
         title="Research"
-        description="Ask a research question. VerityAI plans, gathers evidence and writes a cited report."
+        description="Ask a research question. VerityAI works on it in the background and streams the answer live."
       />
-      <EmptyState
-        icon={<SearchIcon />}
-        title="Start your first research run"
-        description="You'll type a question here and watch the agent work through each stage live: planning, searching, reading, analyzing and writing."
-        phase="Phase 4"
-      />
+      <div className="space-y-6">
+        <NewResearchForm />
+        <TaskHistory />
+      </div>
     </>
   );
 }

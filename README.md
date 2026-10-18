@@ -33,12 +33,15 @@ src/
 │   └── ui/                 # Button, Input, Card, Alert, Spinner, EmptyState, PageHeader, icons
 ├── features/
 │   ├── auth/               # AuthProvider, useAuth/useMe, route guards, login & register pages
-│   ├── research/ sources/ reports/ evaluations/   # pages (filled in from Phase 4 on)
+│   ├── research/           # new research form, history, live run page (SSE)
+│   ├── sources/ reports/ evaluations/   # placeholders (filled in from Phase 5 on)
 │   └── organization/       # current organization + member list
 ├── services/
 │   ├── api-client.ts       # fetch wrapper: access token, 401 → refresh → retry, ApiError
 │   ├── auth-api.ts         # register, login, logout, me
-│   └── organization-api.ts
+│   ├── organization-api.ts
+│   ├── research-api.ts     # tasks, runs, cancel, streamRun (typed SSE messages)
+│   └── sse.ts              # minimal SSE parser for fetch() streams
 ├── types/api.ts            # response types mirroring the backend
 └── test/                   # test setup + renderWithAuth helper
 ```
@@ -52,6 +55,12 @@ src/
   time (shared promise in a tab, Web Locks across tabs), because the backend treats a reused
   refresh token as theft.
 - `can(action)` from `useAuth()` hides UI the user can't use. The backend still checks every request.
+
+## Live research runs
+
+The run page (`features/research/RunPage.tsx`) follows a run over SSE with `useRunStream`. The pure
+reducer in `run-stream-state.ts` applies `snapshot` / `status` / `delta` messages. Deltas carry an
+`offset`, so duplicates are ignored and a gap triggers a reconnect, which starts with a fresh snapshot.
 
 ## Conventions
 
