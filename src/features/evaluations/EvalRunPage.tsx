@@ -233,6 +233,12 @@ function SummarySection({ run }: { run: EvalRunDetail }) {
   );
 }
 
+/** Quality misses recorded on red-team cases (they don't fail the case). */
+function warningsOf(r: EvalResult): string[] {
+  const w = r.details.warnings;
+  return Array.isArray(w) ? w.filter((x): x is string => typeof x === "string") : [];
+}
+
 function ResultsCard({ results }: { results: EvalResult[] }) {
   const [onlyFailed, setOnlyFailed] = useState(false);
   const shown = onlyFailed ? results.filter((r) => !r.passed) : results;
@@ -282,6 +288,18 @@ function ResultsCard({ results }: { results: EvalResult[] }) {
                       <li key={f}>
                         <span aria-hidden="true">▲ </span>
                         {f}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {warningsOf(r).length > 0 && (
+                  <ul className="text-ink-muted mt-1.5 space-y-0.5 text-xs">
+                    {warningsOf(r).map((w) => (
+                      <li key={w}>
+                        <span className="font-medium">
+                          Quality note (doesn't fail a red-team case):{" "}
+                        </span>
+                        {w}
                       </li>
                     ))}
                   </ul>

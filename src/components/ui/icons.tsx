@@ -95,3 +95,11 @@ export const ThumbDownIcon = ({ filled = false }: { filled?: boolean }) => (
     <path d="M7 14V4H4v10zM7 14l4 7a2 2 0 0 0 2-2v-4h5.5a2 2 0 0 0 2-2.3l-1.2-7A2 2 0 0 0 17.3 4H7" />
   </Icon>
 );
+
+export const GuideIcon = () => (
+  <Icon>
+    <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z" />
+    <path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5" />
+    <path d="M9 8h7M9 12h5" />
+  </Icon>
+);

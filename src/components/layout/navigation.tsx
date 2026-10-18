@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import {
   ChartIcon,
   CheckIcon,
+  GuideIcon,
   PulseIcon,
   ReportIcon,
   SearchIcon,
@@ -38,6 +39,7 @@ export const mainNav: NavItem[] = [
 ];
 
 export const settingsNav: NavItem[] = [
+  { to: "/guide", label: "Guide", icon: <GuideIcon /> },
   { to: "/organization", label: "Organization", icon: <UsersIcon /> },
   {
     to: "/settings/policy",
