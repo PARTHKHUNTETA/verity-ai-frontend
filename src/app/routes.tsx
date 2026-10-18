@@ -8,6 +8,7 @@ import { DatasetPage } from "@/features/evaluations/DatasetPage";
 import { EvalRunPage } from "@/features/evaluations/EvalRunPage";
 import { EvaluationsPage } from "@/features/evaluations/EvaluationsPage";
 import { OrganizationPage } from "@/features/organization/OrganizationPage";
+import { ReportPage } from "@/features/reports/ReportPage";
 import { ReportsPage } from "@/features/reports/ReportsPage";
 import { ResearchPage } from "@/features/research/ResearchPage";
 import { RunPage } from "@/features/research/RunPage";
@@ -45,6 +46,7 @@ export const routes: RouteObject[] = [
           { path: "/sources/collections/:collectionId", element: <CollectionPage /> },
           { path: "/sources/:sourceId", element: <SourcePage /> },
           { path: "/reports", element: <ReportsPage /> },
+          { path: "/reports/:reportId", element: <ReportPage /> },
           { path: "/evaluations", element: <EvaluationsPage /> },
           { path: "/evaluations/datasets/:datasetId", element: <DatasetPage /> },
           { path: "/evaluations/runs/:evalRunId", element: <EvalRunPage /> },

@@ -18,6 +18,7 @@ import { PolicyDecisionsCard } from "./components/PolicyDecisionsCard";
 import { StageTimeline } from "./components/StageTimeline";
 import { SourcesList } from "./components/SourcesList";
 import { TraceView } from "./components/TraceView";
+import { ExportButtons } from "@/features/reports/ExportButtons";
 import { ClaimsCard } from "./evaluation/ClaimsCard";
 import { RatingButtons } from "./evaluation/RatingButtons";
 import { ScorecardCard } from "./evaluation/ScorecardCard";
@@ -155,14 +156,17 @@ function RunView({ runId }: { runId: string }) {
               </p>
             )}
             {detail.report && run.status === "completed" && (
-              <div className="border-line text-ink-muted mt-5 flex items-center gap-2 border-t pt-3 text-xs">
-                Was this report useful?
-                <RatingButtons
-                  key={detail.report.id}
-                  reportId={detail.report.id}
-                  initial={detail.evaluation.myReportRating?.rating ?? null}
-                  label="this report"
-                />
+              <div className="border-line text-ink-muted mt-5 flex flex-wrap items-center justify-between gap-3 border-t pt-3 text-xs">
+                <span className="flex items-center gap-2">
+                  Was this report useful?
+                  <RatingButtons
+                    key={detail.report.id}
+                    reportId={detail.report.id}
+                    initial={detail.evaluation.myReportRating?.rating ?? null}
+                    label="this report"
+                  />
+                </span>
+                <ExportButtons reportId={detail.report.id} />
               </div>
             )}
           </Card>

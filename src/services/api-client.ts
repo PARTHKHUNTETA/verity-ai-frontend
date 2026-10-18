@@ -141,6 +141,29 @@ export async function openStream(path: string, signal?: AbortSignal): Promise<Re
   return res;
 }
 
+/**
+ * Downloads a file from the API (with the same auth handling) and saves it in the browser
+ * under the server's file name.
+ */
+export async function downloadFile(path: string, fallbackName: string): Promise<void> {
+  let res = await send(path, {}, true, "*/*");
+  if (res.status === 401) {
+    if (await refreshAccessToken()) res = await send(path, {}, true, "*/*");
+    else onSessionExpired?.();
+  }
+  if (!res.ok) throw await toApiError(res);
+  const name =
+    res.headers.get("Content-Disposition")?.match(/filename="([^"]+)"/)?.[1] ?? fallbackName;
+  const url = URL.createObjectURL(await res.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = name;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
 function send(
   path: string,
   { method = "GET", body, signal }: RequestOptions,

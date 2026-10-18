@@ -594,3 +594,35 @@ export type EvalComparison = {
     change: "fixed" | "regressed" | "same";
   }>;
 };
+
+// --- Reports (Phase 12) ------------------------------------------------------------------
+
+export type ReportSummary = {
+  id: string;
+  runId: string;
+  taskId: string;
+  title: string | null;
+  version: number;
+  question: string;
+  model: string;
+  completedAt: string | null;
+  claimSupportRate: number | null;
+  passed: boolean | null;
+  revised: boolean;
+};
+
+export type ReportDetail = {
+  id: string;
+  runId: string;
+  version: number;
+  status: "draft" | "final" | "superseded";
+  title: string | null;
+  contentMd: string;
+  createdAt: string;
+  question: string;
+  model: string;
+  completedAt: string | null;
+  scoredReportId: string | null;
+  versions: Array<{ id: string; version: number; status: "draft" | "final" | "superseded" }>;
+  citations: Citation[];
+};
