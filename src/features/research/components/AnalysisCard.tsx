@@ -3,8 +3,17 @@ import { cn } from "@/components/ui/cn";
 import type { ToolCallRecord } from "@/types/api";
 import { formatDuration } from "../format";
 
+const CODE_STATUS: Record<string, string> = {
+  succeeded: "OK",
+  failed: "Failed",
+  denied: "Denied",
+  awaiting_approval: "Needs approval",
+  running: "Running",
+};
+
 /** Code the agent ran in the sandbox during analysis, with what it returned. */
-export function AnalysisCard({ toolCalls }: { toolCalls: ToolCallRecord[] }) {
+export function AnalysisCard({ toolCalls: allCalls }: { toolCalls: ToolCallRecord[] }) {
+  const toolCalls = allCalls.filter((c) => c.tool === "run_code");
   if (toolCalls.length === 0) return null;
   return (
     <Card>
@@ -20,12 +29,13 @@ export function AnalysisCard({ toolCalls }: { toolCalls: ToolCallRecord[] }) {
                 <span
                   className={cn(
                     "shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium",
-                    call.status === "succeeded"
-                      ? "bg-emerald-50 text-emerald-700"
-                      : "bg-red-50 text-red-700",
+                    call.status === "succeeded" && "bg-emerald-50 text-emerald-700",
+                    call.status === "awaiting_approval" && "bg-amber-50 text-amber-700",
+                    ["failed", "denied"].includes(call.status) && "bg-red-50 text-red-700",
+                    call.status === "running" && "bg-brand-50 text-brand-700",
                   )}
                 >
-                  {call.status === "succeeded" ? "OK" : "Failed"}
+                  {CODE_STATUS[call.status] ?? call.status}
                   {call.durationMs !== null && ` · ${formatDuration(call.durationMs)}`}
                 </span>
               </summary>
@@ -35,8 +45,9 @@ export function AnalysisCard({ toolCalls }: { toolCalls: ToolCallRecord[] }) {
                 </pre>
                 <pre className="bg-canvas text-ink overflow-x-auto rounded-lg p-3 text-xs">
                   {call.status === "succeeded"
-                    ? JSON.stringify(call.result?.value, null, 2)
-                    : call.error}
+                    ? JSON.stringify(call.result?.result, null, 2)
+                    : (call.error ??
+                      (call.status === "awaiting_approval" ? "Waiting for approval" : ""))}
                 </pre>
                 {call.result?.logs && call.result.logs.length > 0 && (
                   <pre className="bg-canvas text-ink-muted overflow-x-auto rounded-lg p-3 text-xs">

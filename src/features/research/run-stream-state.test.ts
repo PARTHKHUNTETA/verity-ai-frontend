@@ -30,6 +30,8 @@ function detail(content: string, reportStatus: "draft" | "final" = "draft"): Run
     subQuestions: [],
     steps: [],
     toolCalls: [],
+    approvals: [],
+    decisions: [],
   };
 }
 

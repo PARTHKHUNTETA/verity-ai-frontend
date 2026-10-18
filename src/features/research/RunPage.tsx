@@ -12,6 +12,7 @@ import { RunStatusBadge } from "./components/RunStatusBadge";
 import { AnalysisCard } from "./components/AnalysisCard";
 import { DiscoveredSources } from "./components/DiscoveredSources";
 import { PlanCard } from "./components/PlanCard";
+import { PolicyDecisionsCard } from "./components/PolicyDecisionsCard";
 import { StageTimeline } from "./components/StageTimeline";
 import { SourcesList } from "./components/SourcesList";
 import { formatCost, formatDuration, isActive } from "./format";
@@ -72,6 +73,23 @@ function RunView({ runId }: { runId: string }) {
 
       <StageTimeline detail={detail} />
 
+      {run.status === "awaiting_approval" && (
+        <Alert tone="info">
+          <span className="font-medium">Paused, waiting for approval: </span>
+          {detail.approvals
+            .filter((a) => a.status === "pending")
+            .map((a) => a.summary)
+            .join("; ") || "a policy decision"}
+          .{" "}
+          {can("approval:decide") ? (
+            <Link to="/approvals" className="font-medium underline">
+              Review it
+            </Link>
+          ) : (
+            "An owner or admin needs to review it."
+          )}
+        </Alert>
+      )}
       {error && <Alert tone="info">{error}</Alert>}
       {cancel.isError && <Alert>{errorMessage(cancel.error)}</Alert>}
       {run.status === "failed" && (
@@ -101,6 +119,7 @@ function RunView({ runId }: { runId: string }) {
 
       <PlanCard subQuestions={detail.subQuestions} />
       <AnalysisCard toolCalls={detail.toolCalls} />
+      <PolicyDecisionsCard decisions={detail.decisions} />
       <SourcesList citations={detail.citations} />
       <DiscoveredSources sources={detail.discovered} />
 

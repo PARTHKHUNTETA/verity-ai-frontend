@@ -11,6 +11,8 @@ import { RunPage } from "@/features/research/RunPage";
 import { CollectionPage } from "@/features/sources/CollectionPage";
 import { SourcePage } from "@/features/sources/SourcePage";
 import { SourcesPage } from "@/features/sources/SourcesPage";
+import { ApprovalsPage } from "@/features/approvals/ApprovalsPage";
+import { PolicyPage } from "@/features/settings/PolicyPage";
 import { NotFoundPage } from "./NotFoundPage";
 
 /**
@@ -41,6 +43,8 @@ export const routes: RouteObject[] = [
           { path: "/reports", element: <ReportsPage /> },
           { path: "/evaluations", element: <EvaluationsPage /> },
           { path: "/organization", element: <OrganizationPage /> },
+          { path: "/approvals", element: <ApprovalsPage /> },
+          { path: "/settings/policy", element: <PolicyPage /> },
         ],
       },
     ],

@@ -64,3 +64,16 @@ export const MenuIcon = () => (
     <path d="M4 6h16M4 12h16M4 18h16" />
   </Icon>
 );
+
+export const CheckIcon = () => (
+  <Icon>
+    <circle cx="12" cy="12" r="9" />
+    <path d="m8 12 3 3 5-6" />
+  </Icon>
+);
+
+export const ShieldIcon = () => (
+  <Icon>
+    <path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6z" />
+  </Icon>
+);

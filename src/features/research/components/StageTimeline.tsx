@@ -12,7 +12,7 @@ const STAGES: Array<{ stage: RunStage; label: string; discovery?: boolean }> = [
   { stage: "synthesizing", label: "Write" },
 ];
 
-type StageState = "done" | "current" | "failed" | "pending";
+type StageState = "done" | "current" | "waiting" | "failed" | "pending";
 
 /** One-line result of a finished stage, from its recorded steps. */
 function summarize(stage: RunStage, detail: RunDetail): string | null {
@@ -60,6 +60,7 @@ export function StageTimeline({ detail }: { detail: RunDetail }) {
     if (i < currentIndex) return "done";
     if (i === currentIndex) {
       if (run.status === "failed") return "failed";
+      if (run.status === "awaiting_approval") return "waiting";
       if (run.status === "cancelled") return "pending";
       return "current";
     }
@@ -80,6 +81,7 @@ export function StageTimeline({ detail }: { detail: RunDetail }) {
               "rounded-lg border px-3 py-2",
               state === "done" && "border-emerald-200 bg-emerald-50/60",
               state === "current" && "border-brand-500 bg-brand-50",
+              state === "waiting" && "border-amber-400 bg-amber-50",
               state === "failed" && "border-red-300 bg-red-50",
               state === "pending" && "border-line bg-surface",
             )}
@@ -96,7 +98,9 @@ export function StageTimeline({ detail }: { detail: RunDetail }) {
                     .join(" · ") || "done"
                 : state === "current"
                   ? "working…"
-                  : "—"}
+                  : state === "waiting"
+                    ? "waiting for approval"
+                    : "—"}
             </p>
           </li>
         );
@@ -108,6 +112,7 @@ export function StageTimeline({ detail }: { detail: RunDetail }) {
 function StageIcon({ state }: { state: StageState }) {
   if (state === "done") return <span className="text-emerald-600">✓</span>;
   if (state === "failed") return <span className="text-red-600">✕</span>;
+  if (state === "waiting") return <span className="text-amber-600">⏸</span>;
   if (state === "current")
     return <span className="bg-brand-600 inline-block size-2 animate-pulse rounded-full" />;
   return <span className="bg-line inline-block size-2 rounded-full" />;

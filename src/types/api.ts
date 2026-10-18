@@ -151,10 +151,12 @@ export type AgentStep = {
 
 export type ToolCallRecord = {
   id: string;
+  stage: RunStage | null;
   tool: string;
-  args: { purpose?: string; code?: string };
+  args: { purpose?: string; code?: string; url?: string; query?: string };
   status: "proposed" | "denied" | "awaiting_approval" | "running" | "succeeded" | "failed";
-  result: { value?: unknown; logs?: string[] } | null;
+  /** For run_code: the sandbox outcome. */
+  result: { ok?: boolean; result?: unknown; error?: string; logs?: string[] } | null;
   error: string | null;
   durationMs: number | null;
   createdAt: string;
@@ -185,6 +187,73 @@ export type RunDetail = {
   subQuestions: SubQuestion[];
   steps: AgentStep[];
   toolCalls: ToolCallRecord[];
+  approvals: RunApproval[];
+  decisions: PolicyDecision[];
+};
+
+// --- Policies & approvals (Phase 8) ---------------------------------------------------
+
+export type ApprovalStatus = "pending" | "approved" | "rejected" | "expired";
+
+export type RunApproval = {
+  id: string;
+  kind: "tool_call" | "budget";
+  summary: string;
+  status: ApprovalStatus;
+  comment: string | null;
+  createdAt: string;
+  decidedAt: string | null;
+};
+
+export type PolicyDecision = {
+  id: string;
+  tool: string | null;
+  args: Record<string, unknown> | null;
+  decision: "allow" | "deny" | "require_approval";
+  matchedRule: string;
+  reason: string;
+  policyVersion: number | null;
+  createdAt: string;
+};
+
+/** GET /approvals */
+export type ApprovalRequest = RunApproval & {
+  runId: string;
+  details: {
+    tool?: string;
+    args?: { purpose?: string; code?: string; url?: string };
+    reason?: string;
+    limit?: "maxSteps" | "maxTokens" | "maxCostUsd";
+    max?: number;
+    used?: number;
+  };
+  expiresAt: string;
+  question: string;
+  requestedByEmail: string | null;
+};
+
+export type PolicyRules = {
+  tools: {
+    search: { enabled: boolean };
+    fetch: { enabled: boolean; maxPerRun: number };
+    rag: { enabled: boolean };
+    run_code: { enabled: boolean; requireApproval: boolean; maxPerRun: number };
+  };
+  domains: { blocked: string[]; allowed: string[] };
+  budget: {
+    maxCostUsd: number;
+    maxTokens: number;
+    maxSteps: number;
+    onExceed: "fail" | "require_approval";
+  };
+};
+
+export type Policy = {
+  id: string;
+  version: number;
+  rules: PolicyRules;
+  createdBy: string | null;
+  createdAt: string;
 };
 
 /** GET /research/capabilities */
