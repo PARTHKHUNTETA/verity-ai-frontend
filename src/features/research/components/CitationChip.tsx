@@ -65,9 +65,26 @@ export function CitationChip({ number, citation }: { number: number; citation?: 
             [{number}] {citation.sourceTitle}
           </span>
           {pages && <span className="text-ink-muted block text-xs">{pages}</span>}
+          {citation.stance && (
+            <span className="text-ink-muted mt-1.5 flex items-center gap-2 text-[11px]">
+              <span
+                className={cn(
+                  "rounded-full px-2 py-0.5 font-medium",
+                  citation.stance === "supports" && "bg-emerald-50 text-emerald-700",
+                  citation.stance === "contradicts" && "bg-amber-50 text-amber-700",
+                  citation.stance === "neutral" && "bg-slate-100 text-slate-600",
+                )}
+              >
+                {citation.stance}
+              </span>
+              {citation.confidence !== null &&
+                `confidence ${Math.round(citation.confidence * 100)}%`}
+            </span>
+          )}
           <span className="border-brand-200 text-ink-muted mt-2 block max-h-48 overflow-y-auto border-l-2 pl-3 text-xs leading-relaxed">
             {citation.quote.length > 700 ? `${citation.quote.slice(0, 700)}…` : citation.quote}
           </span>
+          {citation.note && <span className="text-ink mt-2 block text-xs">{citation.note}</span>}
           <Link
             to={`/sources/${citation.sourceId}${citation.chunkId ? `?chunk=${citation.chunkId}` : ""}`}
             className="text-brand-600 hover:text-brand-700 mt-3 inline-block text-xs font-medium"

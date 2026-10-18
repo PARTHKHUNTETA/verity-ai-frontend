@@ -77,6 +77,7 @@ export type Run = {
   stage: RunStage | null;
   model: string;
   promptVersion: string;
+  discovery: boolean;
   tokensInput: number;
   tokensOutput: number;
   /** null = unknown (model missing from the backend's price table). */
@@ -103,6 +104,7 @@ export type TaskSummary = Task & { latestRun: Run | null };
 export type Report = {
   id: string;
   version: number;
+  title: string | null;
   status: "draft" | "final" | "superseded";
   contentMd: string;
 };
@@ -115,8 +117,47 @@ export type Citation = {
   sourceId: string;
   sourceTitle: string;
   quote: string;
+  stance: "supports" | "contradicts" | "neutral" | null;
+  confidence: number | null;
+  note: string | null;
+  subQuestionId: string | null;
   pageStart: number | null;
   pageEnd: number | null;
+};
+
+export type SubQuestion = {
+  id: string;
+  position: number;
+  text: string;
+  rationale: string | null;
+  searchQueries: string[];
+  coverage: "pending" | "answered" | "partial" | "unanswered";
+  evidenceCount: number;
+};
+
+export type AgentStep = {
+  seq: number;
+  stage: RunStage | null;
+  type: "llm_call" | "tool_call" | "observation" | "stage_change" | "error";
+  input: Record<string, unknown> | null;
+  output: Record<string, unknown> | null;
+  model: string | null;
+  tokensInput: number | null;
+  tokensOutput: number | null;
+  costUsd: number | null;
+  durationMs: number | null;
+  createdAt: string;
+};
+
+export type ToolCallRecord = {
+  id: string;
+  tool: string;
+  args: { purpose?: string; code?: string };
+  status: "proposed" | "denied" | "awaiting_approval" | "running" | "succeeded" | "failed";
+  result: { value?: unknown; logs?: string[] } | null;
+  error: string | null;
+  durationMs: number | null;
+  createdAt: string;
 };
 
 export type RunSourceStatus = "candidate" | "acquired" | "used" | "rejected" | "blocked";
@@ -141,6 +182,9 @@ export type RunDetail = {
   report: Report | null;
   citations: Citation[];
   discovered: DiscoveredSource[];
+  subQuestions: SubQuestion[];
+  steps: AgentStep[];
+  toolCalls: ToolCallRecord[];
 };
 
 /** GET /research/capabilities */

@@ -10,7 +10,8 @@ function detail(content: string, reportStatus: "draft" | "final" = "draft"): Run
       status: reportStatus === "final" ? "completed" : "running",
       stage: "synthesizing",
       model: "fake-model",
-      promptVersion: "answer-v0",
+      promptVersion: "pipeline-v1",
+      discovery: false,
       tokensInput: 0,
       tokensOutput: 0,
       costUsd: 0,
@@ -23,9 +24,12 @@ function detail(content: string, reportStatus: "draft" | "final" = "draft"): Run
       durationMs: null,
     },
     task: { id: "t1", question: "Q?", instructions: null, createdBy: "u1", createdAt: "" },
-    report: { id: "rep1", version: 1, status: reportStatus, contentMd: content },
+    report: { id: "rep1", version: 1, title: null, status: reportStatus, contentMd: content },
     citations: [],
     discovered: [],
+    subQuestions: [],
+    steps: [],
+    toolCalls: [],
   };
 }
 

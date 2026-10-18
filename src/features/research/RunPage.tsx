@@ -9,7 +9,10 @@ import { errorMessage } from "@/services/api-client";
 import { researchApi } from "@/services/research-api";
 import { AnswerView } from "./components/AnswerView";
 import { RunStatusBadge } from "./components/RunStatusBadge";
+import { AnalysisCard } from "./components/AnalysisCard";
 import { DiscoveredSources } from "./components/DiscoveredSources";
+import { PlanCard } from "./components/PlanCard";
+import { StageTimeline } from "./components/StageTimeline";
 import { SourcesList } from "./components/SourcesList";
 import { formatCost, formatDuration, isActive } from "./format";
 import { useRunStream } from "./hooks/useRunStream";
@@ -67,6 +70,8 @@ function RunView({ runId }: { runId: string }) {
         </div>
       </div>
 
+      <StageTimeline detail={detail} />
+
       {error && <Alert tone="info">{error}</Alert>}
       {cancel.isError && <Alert>{errorMessage(cancel.error)}</Alert>}
       {run.status === "failed" && (
@@ -94,6 +99,8 @@ function RunView({ runId }: { runId: string }) {
         )}
       </Card>
 
+      <PlanCard subQuestions={detail.subQuestions} />
+      <AnalysisCard toolCalls={detail.toolCalls} />
       <SourcesList citations={detail.citations} />
       <DiscoveredSources sources={detail.discovered} />
 

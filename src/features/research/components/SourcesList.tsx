@@ -9,7 +9,7 @@ export function SourcesList({ citations }: { citations: Citation[] }) {
   return (
     <Card>
       <h2 className="border-line text-ink border-b px-5 py-3 text-sm font-semibold">
-        Sources <span className="text-ink-muted font-normal">({citations.length} passages)</span>
+        Evidence <span className="text-ink-muted font-normal">({citations.length} quotes)</span>
       </h2>
       <ol className="divide-line divide-y">
         {citations.map((c) => (

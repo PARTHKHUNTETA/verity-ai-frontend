@@ -34,7 +34,8 @@ src/
 ├── features/
 │   ├── auth/               # AuthProvider, useAuth/useMe, route guards, login & register pages
 │   ├── research/           # research form (+ discovery toggle), history, live run page (SSE),
-│   │                       # citations, "Sources found" panel
+│   │                       # stage timeline, plan, analysis (code runs), evidence,
+│   │                       # citations with stance, "Sources found" panel
 │   ├── sources/            # collections, upload, document & chunk viewer, search tester
 │   ├── reports/ evaluations/   # placeholders (filled in later)
 │   └── organization/       # current organization + member list
