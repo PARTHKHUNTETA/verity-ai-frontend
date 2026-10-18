@@ -29,7 +29,10 @@
   --color-viz-muted: #c3c2b7; /* de-emphasis gray: everything else */
   --color-viz-grid: #e1e0d9; /* hairline gridlines */
   --color-viz-axis: #898781; /* axis labels */
-  --color-status-critical: #d03b3b; /* errors (always with an icon + label) */
+  /* Status (the skill's fixed status palette): always paired with an icon + label. */
+  --color-status-good: #0ca30c;
+  --color-status-warning: #fab219;
+  --color-status-critical: #d03b3b; /* errors, unsupported claims */
 }
 
 html,

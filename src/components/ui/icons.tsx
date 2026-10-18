@@ -83,3 +83,15 @@ export const PulseIcon = () => (
     <path d="M3 12h4l3-7 4 14 3-7h4" />
   </Icon>
 );
+
+export const ThumbUpIcon = ({ filled = false }: { filled?: boolean }) => (
+  <Icon className="size-4" fill={filled ? "currentColor" : "none"}>
+    <path d="M7 10v10H4V10zM7 10l4-7a2 2 0 0 1 2 2v4h5.5a2 2 0 0 1 2 2.3l-1.2 7A2 2 0 0 1 17.3 20H7" />
+  </Icon>
+);
+
+export const ThumbDownIcon = ({ filled = false }: { filled?: boolean }) => (
+  <Icon className="size-4" fill={filled ? "currentColor" : "none"}>
+    <path d="M7 14V4H4v10zM7 14l4 7a2 2 0 0 0 2-2v-4h5.5a2 2 0 0 0 2-2.3l-1.2-7A2 2 0 0 0 17.3 4H7" />
+  </Icon>
+);

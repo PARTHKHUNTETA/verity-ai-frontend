@@ -16,6 +16,8 @@ export type RunStreamState = {
   finished: boolean;
   /** Set when a delta arrived past the end of our text: we need a fresh snapshot. */
   gap: boolean;
+  /** Which report version `content` is (the evaluation stage may write a version 2). */
+  version: number;
 };
 
 export const initialRunStreamState: RunStreamState = {
@@ -23,6 +25,7 @@ export const initialRunStreamState: RunStreamState = {
   content: "",
   finished: false,
   gap: false,
+  version: 1,
 };
 
 export function runStreamReducer(state: RunStreamState, message: RunStreamMessage): RunStreamState {
@@ -31,13 +34,17 @@ export function runStreamReducer(state: RunStreamState, message: RunStreamMessag
       const { detail } = message;
       const saved = detail.report?.contentMd ?? "";
       const isFinal = detail.report?.status === "final";
+      const version = detail.report?.version ?? state.version;
       // The DB copy is saved about once a second, so while streaming it can lag behind what
-      // we already received live. Keep ours if it extends the saved copy.
+      // we already received live. Keep ours if it extends the saved copy of the same version.
       const content =
-        !isFinal && state.content.length > saved.length && state.content.startsWith(saved)
+        version === state.version &&
+        !isFinal &&
+        state.content.length > saved.length &&
+        state.content.startsWith(saved)
           ? state.content
           : saved;
-      return { ...state, detail, content, gap: false };
+      return { ...state, detail, content, version, gap: false };
     }
 
     case "status":
@@ -51,6 +58,13 @@ export function runStreamReducer(state: RunStreamState, message: RunStreamMessag
       };
 
     case "delta": {
+      if (message.version < state.version) return state; // an older draft
+      if (message.version > state.version) {
+        // A revision started: it replaces the text from the beginning.
+        if (message.offset > 0)
+          return { ...state, version: message.version, content: "", gap: true };
+        return { ...state, version: message.version, content: message.text };
+      }
       const end = message.offset + message.text.length;
       if (end <= state.content.length) return state; // already have it
       if (message.offset > state.content.length) return { ...state, gap: true };

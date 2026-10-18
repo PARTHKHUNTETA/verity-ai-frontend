@@ -13,7 +13,8 @@ import { readSse } from "./sse";
 export type RunStreamMessage =
   | { type: "snapshot"; detail: RunDetail }
   | { type: "status"; status: RunStatus; stage: RunStage | null }
-  | { type: "delta"; offset: number; text: string }
+  /** `version`: the report version (2 = the revision written after evaluation). */
+  | { type: "delta"; offset: number; text: string; version: number }
   | { type: "done" };
 
 export const researchApi = {
@@ -25,6 +26,13 @@ export const researchApi = {
   listTasks: async () => (await apiRequest<{ tasks: TaskSummary[] }>("/research/tasks")).tasks,
 
   getRun: (runId: string) => apiRequest<RunDetail>(`/research/runs/${runId}`),
+
+  /** Thumbs up/down on a report or one of its claims; rating 0 removes it. */
+  rateReport: (input: { reportId: string; claimId?: string; rating: -1 | 0 | 1 }) =>
+    apiRequest<{ rating: -1 | 1 | null; comment: string | null }>("/feedback", {
+      method: "POST",
+      body: input,
+    }),
 
   rerun: (taskId: string) => apiRequest<Run>(`/research/tasks/${taskId}/runs`, { method: "POST" }),
 
@@ -44,7 +52,12 @@ export const researchApi = {
           yield { type: "status", status: payload.status, stage: payload.stage };
           break;
         case "delta":
-          yield { type: "delta", offset: payload.offset, text: payload.text };
+          yield {
+            type: "delta",
+            offset: payload.offset,
+            text: payload.text,
+            version: payload.version ?? 1,
+          };
           break;
         case "done":
           yield { type: "done" };

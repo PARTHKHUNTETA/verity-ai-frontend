@@ -10,6 +10,7 @@ const STAGES: Array<{ stage: RunStage; label: string; discovery?: boolean }> = [
   { stage: "extracting", label: "Extract" },
   { stage: "analyzing", label: "Analyze" },
   { stage: "synthesizing", label: "Write" },
+  { stage: "evaluating", label: "Check" },
 ];
 
 type StageState = "done" | "current" | "waiting" | "failed" | "pending";
@@ -44,6 +45,15 @@ function summarize(stage: RunStage, detail: RunDetail): string | null {
     }
     case "synthesizing":
       return steps.length ? `${out("claims")} claims` : null;
+    case "evaluating": {
+      const card = detail.evaluation.scorecard;
+      if (!card) return null;
+      const support =
+        card.claimSupportRate === null
+          ? "unverified"
+          : `${Math.round(card.claimSupportRate * 100)}% supported`;
+      return card.extra.revision ? `${support} · revised` : support;
+    }
     default:
       return null;
   }
@@ -68,7 +78,12 @@ export function StageTimeline({ detail }: { detail: RunDetail }) {
   };
 
   return (
-    <ol className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+    <ol
+      className={cn(
+        "grid grid-cols-2 gap-2 sm:grid-cols-4",
+        run.discovery ? "lg:grid-cols-8" : "lg:grid-cols-6",
+      )}
+    >
       {stages.map(({ stage, label }, i) => {
         const state = stateOf(i);
         const duration = detail.steps

@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import type { RunDetail } from "@/types/api";
 import { initialRunStreamState, runStreamReducer, type RunStreamState } from "./run-stream-state";
 
-function detail(content: string, reportStatus: "draft" | "final" = "draft"): RunDetail {
+function detail(
+  content: string,
+  reportStatus: "draft" | "final" = "draft",
+  version = 1,
+): RunDetail {
   return {
     run: {
       id: "r1",
@@ -24,7 +28,7 @@ function detail(content: string, reportStatus: "draft" | "final" = "draft"): Run
       durationMs: null,
     },
     task: { id: "t1", question: "Q?", instructions: null, createdBy: "u1", createdAt: "" },
-    report: { id: "rep1", version: 1, title: null, status: reportStatus, contentMd: content },
+    report: { id: `rep${version}`, version, title: null, status: reportStatus, contentMd: content },
     citations: [],
     discovered: [],
     subQuestions: [],
@@ -32,6 +36,7 @@ function detail(content: string, reportStatus: "draft" | "final" = "draft"): Run
     toolCalls: [],
     approvals: [],
     decisions: [],
+    evaluation: { scorecard: null, claims: [], myReportRating: null },
   };
 }
 
@@ -43,8 +48,8 @@ describe("runStreamReducer", () => {
     const s = apply(
       initialRunStreamState,
       { type: "snapshot", detail: detail("") },
-      { type: "delta", offset: 0, text: "Hello " },
-      { type: "delta", offset: 6, text: "world" },
+      { type: "delta", offset: 0, text: "Hello ", version: 1 },
+      { type: "delta", offset: 6, text: "world", version: 1 },
     );
     expect(s.content).toBe("Hello world");
   });
@@ -53,7 +58,7 @@ describe("runStreamReducer", () => {
     const s = apply(
       initialRunStreamState,
       { type: "snapshot", detail: detail("Hello world") },
-      { type: "delta", offset: 0, text: "Hello " },
+      { type: "delta", offset: 0, text: "Hello ", version: 1 },
     );
     expect(s.content).toBe("Hello world");
   });
@@ -62,7 +67,7 @@ describe("runStreamReducer", () => {
     const s = apply(
       initialRunStreamState,
       { type: "snapshot", detail: detail("Hello wo") },
-      { type: "delta", offset: 6, text: "world!" },
+      { type: "delta", offset: 6, text: "world!", version: 1 },
     );
     expect(s.content).toBe("Hello world!");
   });
@@ -71,7 +76,7 @@ describe("runStreamReducer", () => {
     const s = apply(
       initialRunStreamState,
       { type: "snapshot", detail: detail("Hello") },
-      { type: "delta", offset: 10, text: "later text" },
+      { type: "delta", offset: 10, text: "later text", version: 1 },
     );
     expect(s.gap).toBe(true);
     expect(s.content).toBe("Hello");
@@ -81,7 +86,7 @@ describe("runStreamReducer", () => {
     const live = apply(
       initialRunStreamState,
       { type: "snapshot", detail: detail("") },
-      { type: "delta", offset: 0, text: "Hello world" },
+      { type: "delta", offset: 0, text: "Hello world", version: 1 },
     );
     expect(runStreamReducer(live, { type: "snapshot", detail: detail("Hello") }).content).toBe(
       "Hello world",
@@ -100,5 +105,39 @@ describe("runStreamReducer", () => {
     );
     expect(s.detail?.run.status).toBe("completed");
     expect(s.finished).toBe(true);
+  });
+
+  describe("revisions (report version 2)", () => {
+    const delta = (offset: number, text: string, version = 1) =>
+      ({ type: "delta", offset, text, version }) as const;
+
+    it("replaces the first draft when the revision starts streaming", () => {
+      const state = apply(
+        initialRunStreamState,
+        { type: "snapshot", detail: detail("Draft one.") },
+        delta(0, "Better "),
+        delta(7, "answer.", 2),
+      );
+      expect(state).toMatchObject({ version: 2, content: "", gap: true });
+
+      const fresh = apply(
+        initialRunStreamState,
+        { type: "snapshot", detail: detail("Draft one.") },
+        delta(0, "Better ", 2),
+        delta(7, "answer.", 2),
+        delta(0, "Draft one.", 1), // a late piece of the old draft is ignored
+      );
+      expect(fresh).toMatchObject({ version: 2, content: "Better answer.", gap: false });
+    });
+
+    it("follows the snapshot when it shows another version", () => {
+      const state = apply(
+        initialRunStreamState,
+        delta(0, "Better answer, still stream", 2),
+        // The evaluation kept the original: the final snapshot shows version 1.
+        { type: "snapshot", detail: detail("Draft one.", "final", 1) },
+      );
+      expect(state).toMatchObject({ version: 1, content: "Draft one." });
+    });
   });
 });

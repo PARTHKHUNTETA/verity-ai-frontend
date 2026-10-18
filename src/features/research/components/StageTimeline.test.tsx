@@ -74,6 +74,7 @@ function detail(overrides: Partial<RunDetail["run"]>, steps: AgentStep[] = []): 
     toolCalls: [],
     approvals: [],
     decisions: [],
+    evaluation: { scorecard: null, claims: [], myReportRating: null },
   };
 }
 

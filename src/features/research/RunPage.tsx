@@ -18,6 +18,9 @@ import { PolicyDecisionsCard } from "./components/PolicyDecisionsCard";
 import { StageTimeline } from "./components/StageTimeline";
 import { SourcesList } from "./components/SourcesList";
 import { TraceView } from "./components/TraceView";
+import { ClaimsCard } from "./evaluation/ClaimsCard";
+import { RatingButtons } from "./evaluation/RatingButtons";
+import { ScorecardCard } from "./evaluation/ScorecardCard";
 import { formatCost, formatDuration, isActive } from "./format";
 import { useRunStream } from "./hooks/useRunStream";
 
@@ -30,7 +33,7 @@ function RunView({ runId }: { runId: string }) {
   const me = useMe();
   const { can } = useAuth();
   const navigate = useNavigate();
-  const { detail, content, error } = useRunStream(runId);
+  const { detail, content, version, error } = useRunStream(runId);
   const [tab, setTab] = useState<"report" | "trace">("report");
 
   const cancel = useMutation({ mutationFn: () => researchApi.cancelRun(runId) });
@@ -129,6 +132,13 @@ function RunView({ runId }: { runId: string }) {
       ) : (
         <>
           <Card className="p-5 sm:p-6">
+            {active && run.stage === "evaluating" && (
+              <p className="text-ink-muted mb-3 text-xs">
+                {version > 1
+                  ? "Fact-checking flagged some claims: rewriting the report…"
+                  : "Fact-checking every cited claim…"}
+              </p>
+            )}
             {content ? (
               <AnswerView
                 content={content}
@@ -144,7 +154,27 @@ function RunView({ runId }: { runId: string }) {
                     : "No answer was produced."}
               </p>
             )}
+            {detail.report && run.status === "completed" && (
+              <div className="border-line text-ink-muted mt-5 flex items-center gap-2 border-t pt-3 text-xs">
+                Was this report useful?
+                <RatingButtons
+                  key={detail.report.id}
+                  reportId={detail.report.id}
+                  initial={detail.evaluation.myReportRating?.rating ?? null}
+                  label="this report"
+                />
+              </div>
+            )}
           </Card>
+
+          <ScorecardCard scorecard={detail.evaluation.scorecard} />
+          {detail.report && (
+            <ClaimsCard
+              key={detail.report.id}
+              reportId={detail.report.id}
+              claims={detail.evaluation.claims}
+            />
+          )}
 
           <PlanCard subQuestions={detail.subQuestions} />
           <AnalysisCard toolCalls={detail.toolCalls} />

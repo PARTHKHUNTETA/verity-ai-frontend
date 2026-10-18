@@ -189,6 +189,70 @@ export type RunDetail = {
   toolCalls: ToolCallRecord[];
   approvals: RunApproval[];
   decisions: PolicyDecision[];
+  evaluation: RunEvaluation;
+};
+
+// --- Online evaluation (Phase 10) -------------------------------------------------------
+
+export type ClaimVerdict = "supported" | "partial" | "unsupported";
+
+export type Scorecard = {
+  id: string;
+  runId: string;
+  reportId: string;
+  claimSupportRate: number | null;
+  citationAccuracy: number | null;
+  citationValidity: number | null;
+  sourceReliability: number | null;
+  coverage: number | null;
+  taskCompletion: number | null;
+  policyCompliant: boolean;
+  passed: boolean;
+  latencyMs: number | null;
+  costUsd: number | null;
+  extra: {
+    claims: { total: number; supported: number; partial: number; unsupported: number };
+    citations: {
+      total: number;
+      supporting: number;
+      invalidNumbers: number[];
+      unresolvable: number;
+    };
+    contradictionHandling: number | null;
+    taskCompletion: { missing: string[]; rationale: string | null } | null;
+    policy: { violations: string[] };
+    sources: Array<{ sourceId: string; title: string; score: number; reason: string }>;
+    flags: string[];
+    revision?: {
+      fromReportId: string;
+      before: { claimSupportRate: number | null; citationAccuracy: number | null };
+      kept: "revised" | "original";
+    };
+    judgeError?: string;
+  };
+  createdAt: string;
+};
+
+export type JudgedClaim = {
+  id: string;
+  position: number;
+  section: string | null;
+  text: string;
+  citations: number[];
+  judgment: {
+    verdict: ClaimVerdict;
+    citationAccurate: boolean;
+    citations: Array<{ number: number; supports: boolean }>;
+    rationale: string | null;
+    judgeModel: string;
+  } | null;
+  myRating: -1 | 1 | null;
+};
+
+export type RunEvaluation = {
+  scorecard: Scorecard | null;
+  claims: JudgedClaim[];
+  myReportRating: { rating: -1 | 1; comment: string | null } | null;
 };
 
 // --- Policies & approvals (Phase 8) ---------------------------------------------------
